@@ -27,7 +27,33 @@ namespace API
             }).CreateMapper());
 
             services.AddDbContext<DataContext>(options => {
-                options.UseSqlite(_config.GetConnectionString("Default"));
+                var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                string connStr;
+
+                // If in production we use the Heroku-provided connection string, 
+                // else, in development, we use the connection string from config.
+                if (env == "Development") {
+                    // Use connection string from config.
+                    connStr = _config.GetConnectionString("Default");
+                } else {
+                    // Use connection string provided at runtime by Heroku.
+                    var connUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+
+                    // Parse connection URL to connection string for Npgsql
+                    connUrl = connUrl.Replace("postgres://", string.Empty);
+                    var pgUserPass = connUrl.Split("@")[0];
+                    var pgHostPortDb = connUrl.Split("@")[1];
+                    var pgHostPort = pgHostPortDb.Split("/")[0];
+                    var pgDb = pgHostPortDb.Split("/")[1];
+                    var pgUser = pgUserPass.Split(":")[0];
+                    var pgPass = pgUserPass.Split(":")[1];
+                    var pgHost = pgHostPort.Split(":")[0];
+                    var pgPort = pgHostPort.Split(":")[1];
+
+                    connStr = $"Server={pgHost};Port={pgPort};User Id={pgUser};Password={pgPass};Database={pgDb};SSL Mode=Require;TrustServerCertificate=True";
+                }
+
+                options.UseNpgsql(connStr);
             });
 
             services.AddCors();

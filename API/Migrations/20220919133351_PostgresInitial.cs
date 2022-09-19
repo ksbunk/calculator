@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace API.Data.Migrations
+namespace API.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class PostgresInitial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -12,11 +13,11 @@ namespace API.Data.Migrations
                 name: "MeasurmentUnits",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    UnitName = table.Column<string>(type: "TEXT", nullable: true),
-                    UnitType = table.Column<int>(type: "INTEGER", nullable: false),
-                    ConversionValue = table.Column<double>(type: "REAL", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UnitName = table.Column<string>(type: "text", nullable: true),
+                    UnitType = table.Column<int>(type: "integer", nullable: false),
+                    ConversionValue = table.Column<decimal>(type: "numeric", nullable: false)
                 },
                 constraints: table =>
                 {
