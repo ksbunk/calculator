@@ -41,8 +41,8 @@
         <div v-if="calculationError" class="alert alert-danger" role="alert">
           ERROR: {{ calculationError }}
         </div>
-        <button class="w-100 btn btn-primary btn-lg" @click="calculateAddition()">
-          Calculate Addition
+        <button class="w-100 btn btn-primary btn-lg" @click="calculateAddition()" :disabled="calculating > 0">
+          {{ (calculating > 0) ? 'Calculating...' : 'Calculate Addition' }}
         </button>
     </div>
   </div>
@@ -62,6 +62,7 @@ export default {
       measurements: [],
       additionResults: [],
       calculationError: null,
+      calculating: 0,
     };
   },
   props: {
@@ -70,16 +71,19 @@ export default {
   methods: {
     calculateAddition() {
       this.calculationError = null;
+      this.calculating += 1;
       axios.post('/api/measurementsum', this.measurements).then(
         (response) => {
           this.additionResults.push({
             result : response.data,
             measurements: [...this.measurements],
           });
+          this.calculating -= 1;
         },
         (error) => {
           // This should be properly formatted for better user experience
           this.calculationError = JSON.stringify(error.response.data);
+          this.calculating -= 1;
         },
       );
     },
